@@ -1,0 +1,95 @@
+class Game 
+  attr_reader :player1, :player2, :current_player
+  
+  def start
+  puts "Welcome to the game #{@player1.name} and #{@player2.name}"
+  game_over = false
+  until game_over do
+    play_turn
+    if current_player.life == 0
+      game_over = true
+    end
+  end
+
+  def new(player1, player2)
+    @player1 = Player.new(player1)
+    @player2 = Player.new(player2)
+    @current_player = @player1
+  end
+  
+  def switch_players
+    if current_player == player1
+      @current_player = player2
+    else
+      @current_player = player1
+    end
+  end
+  
+  def play_turn
+    question = Question.new
+    puts "#{current_player.name}: #{question.ask}"
+    answer = gets.chomp
+    if question.verify_answer(answer)
+      current_player.is_correct
+    else
+      current_player.is_wrong
+    end
+    switch_players
+  end
+  
+  def game_over
+      puts "Game over!"
+      if player1.score > player2.score
+        puts "#{player1.name} wins with a score of #{player1.score} while #{player2.name} has #{player2.score}"  
+      elsif player1.score < player2.score
+        puts "#{player2.name} wins with a score of #{player2.score} while #{player1.name} has #{player1.score}"  
+      else
+        puts "Tie game but unfortunately #{current_player.name} has died of exhaustion"
+      end
+    end
+  end
+end
+
+class Question
+  attr_reader :answer
+  
+  def initialize
+    @num1 = rand(1..20)
+    @num2 = rand(1..20)
+    @answer = @num1 + @num2
+  end
+  
+  def ask
+    "What is #{@num1} + #{@num2}?"
+  end
+  
+  def verify_answer(answer)
+    answer.to_i == @answer
+  end
+end
+
+
+class Player
+  attr_reader :name, :score, :life
+  
+  def initialize(name)
+    @name = name
+    @life = 3
+    @score = 0
+  end
+  
+  def is_wrong
+    @life -= 1
+    puts "#{name}: Wrong! You lost a life! #{@life}/3"
+  end
+  
+  def is_correct
+    @score += 1
+    puts "#{name}: Correct! Current score: #{score}"
+  end
+
+
+end
+
+game = Game.new('Denny', 'Melissa')
+game.start
